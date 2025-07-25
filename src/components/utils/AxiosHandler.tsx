@@ -1,5 +1,6 @@
-import { AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleAxiosResponse = <Type,>(req: Promise<AxiosResponse<Type | any>>): Promise<Type> =>
 	new Promise((resolve, reject) => {
 		req.then((res: AxiosResponse<Type>) => resolve(res.data)).catch((e: Error) => reject(e));

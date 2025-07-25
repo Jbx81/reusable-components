@@ -1,27 +1,13 @@
 import { Tooltip } from 'flowbite-react';
-import { useState, JSX } from 'react';
+import { useState, type JSX } from 'react';
 
-import RouterLink from '../RouterLink';
+import RouterLink from '../links/RouterLink';
+import React from 'react';
 
-export type TabOptions = {
-	message: string;
-	disabled: string;
-};
-
-export const defaultTabOptions: TabOptions = {
-	message: '',
-	disabled: '',
-};
-
-export const dbNotConfigured: TabOptions = {
-	message: 'This cluster does not support mongo database integration',
-	disabled: 'true',
-};
-
-export const Tabs = ({ children, index }) => {
+export const Tabs = ({ children, index }: { children: JSX.Element | JSX.Element[]; index: number }) => {
 	const [activeTab, setActiveTab] = useState(index > 0 ? index : 0);
 
-	const handleClick = (e, newActiveTab) => {
+	const handleClick = (e: React.MouseEvent<HTMLButtonElement>, newActiveTab: number): void => {
 		e.preventDefault();
 		setActiveTab(newActiveTab);
 	};
@@ -54,7 +40,24 @@ export const Tabs = ({ children, index }) => {
 	 *     }
 	 * });
 	 */
-	function renderTabButton(child) {
+	interface TabOptions {
+		message?: string;
+		disabled: 'true' | 'false';
+	}
+
+	interface TabChildProps {
+		label: string;
+		taboptions: TabOptions;
+		link?: string;
+		index: number;
+		children?: JSX.Element | JSX.Element[]; // Add children property
+	}
+
+	interface TabChild {
+		props: TabChildProps;
+	}
+
+	function renderTabButton(child: TabChild): JSX.Element {
 		const { message } = child.props.taboptions;
 
 		const button = (
@@ -86,9 +89,13 @@ export const Tabs = ({ children, index }) => {
 		) as JSX.Element;
 	}
 
-	const renderTabContent = (child) => {
+	interface TabContentChild {
+		props: TabChildProps;
+	}
+
+	const renderTabContent = (child: TabContentChild): JSX.Element | null => {
 		if (child.props.index === activeTab) {
-			return <div key={`${child.props?.index}-${child.props?.label.replace(/\s+/g, '-')}`}>{child}</div>;
+			return <div key={`${child.props?.index}-${child.props?.label.replace(/\s+/g, '-')}`}>{child.props.children}</div>;
 		}
 		return null;
 	};
@@ -96,10 +103,14 @@ export const Tabs = ({ children, index }) => {
 	return (
 		<div className="mx-auto">
 			<div
-				key={`${children.props?.index}-${children.props?.label.replace(/\s+/g, '-') ?? ''}`}
+				key={
+					Array.isArray(children)
+						? children.map((child) => `${child.props?.index}-${child.props?.label.replace(/\s+/g, '-')}`).join(',')
+						: `${children.props?.index}-${children.props?.label.replace(/\s+/g, '-') ?? ''}`
+				}
 				className="border-b border-inputBorderColor text-primaryColor flex"
 			>
-				{children.props ? renderTabButton(children) : children.map(renderTabButton)}
+				{React.isValidElement(children) ? renderTabButton(children) : children.map(renderTabButton)}
 			</div>
 			<div className="py-4">{children.props ? renderTabContent(children) : children.map(renderTabContent)}</div>
 		</div>

@@ -1,5 +1,6 @@
 import type { Placement } from '@floating-ui/core';
 import { Tooltip } from 'flowbite-react';
+import type { JSX } from 'react';
 
 interface ReusableTooltipProps {
 	content: string | JSX.Element[];
